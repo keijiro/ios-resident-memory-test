@@ -16,7 +16,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PyJ-bG-qHJ">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PyJ-bG-qHJ">
                                 <rect key="frame" x="98" y="363" width="125" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Free the all blocks">
@@ -26,7 +26,7 @@
                                     <action selector="freeAll:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="agb-ja-RLT"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ePv-c0-jOV">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ePv-c0-jOV">
                                 <rect key="frame" x="59" y="158" width="203" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Allocate large memory blocks">
@@ -36,7 +36,7 @@
                                     <action selector="allocateLargeMemoryBlocks:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="olK-nA-WeT"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVY-Fk-FbM">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVY-Fk-FbM">
                                 <rect key="frame" x="58" y="232" width="205" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Allocate small memory blocks">
@@ -48,14 +48,6 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="hVY-Fk-FbM" firstAttribute="top" secondItem="ePv-c0-jOV" secondAttribute="bottom" constant="44" id="255-gQ-7u0"/>
-                            <constraint firstItem="ePv-c0-jOV" firstAttribute="centerX" secondItem="hVY-Fk-FbM" secondAttribute="centerX" id="4SN-VG-8aF"/>
-                            <constraint firstItem="2O0-p9-zad" firstAttribute="top" secondItem="PyJ-bG-qHJ" secondAttribute="bottom" constant="175" id="hrH-r2-iXj"/>
-                            <constraint firstItem="ePv-c0-jOV" firstAttribute="top" secondItem="qvY-nP-j5x" secondAttribute="bottom" constant="138" id="jvW-Gh-geN"/>
-                            <constraint firstItem="hVY-Fk-FbM" firstAttribute="centerX" secondItem="PyJ-bG-qHJ" secondAttribute="centerX" id="meN-72-kBE"/>
-                            <constraint firstItem="ePv-c0-jOV" firstAttribute="centerX" secondItem="kh9-bI-dsS" secondAttribute="centerX" id="pwp-AQ-Z4L"/>
-                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
