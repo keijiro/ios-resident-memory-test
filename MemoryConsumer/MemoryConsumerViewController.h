@@ -9,5 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface MemoryConsumerViewController : UIViewController
-
+{
+    void *_pointerArray[1024 * 1024];
+}
 @end
