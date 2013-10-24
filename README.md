@@ -14,7 +14,7 @@ iOS アプリ開発の現場においては、度々、メモリ消費量のこ�
 
 ## テストプログラム
 
-この挙動を詳しく観察するために、簡単なテストプログラムを作成しました。
+この挙動を詳しく観察するために、簡単なテストプログラムを作成しました（このリポジトリに含まれている Xcode プロジェクトです）。
 
 ![Test Program](http://keijiro.github.io/ios-resident-memory-test/TestProgram.png)
 
