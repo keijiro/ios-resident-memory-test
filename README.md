@@ -59,3 +59,29 @@ iOS は malloc 経由で確保されるメモリを **tiny**, **small**, **large
 これらの挙動の違いは、VM Tracker を使用することで、より詳しく観察できます。
 
  - 1. 過去の資料には "huge" という 4 つ目の zone が存在すると記されている場合もありますが、これは [magazine allocator](http://www.opensource.apple.com/source/Libc/Libc-825.40.1/gen/magazine_malloc.c) への移行の際に廃止されています。恐らく現状の iOS でも使用されていないでしょう。
+
+## VM Tracker で詳しく観察する
+
+Instruments の Activity Monitor テンプレートはシステムの状態を大まかに観察できますが、メモリの状態を詳細に分析することはできません。詳細な分析には Allocations テンプレートが適しています。このテンプレートに含まれる **VM Tracker** は、仮想メモリの状態を詳細に観察できる非常に強力なツールです。
+
+![VM Tracker](http://keijiro.github.io/ios-resident-memory-test/VMTracker.png)
+
+まず、大きなメモリブロックの場合を観察してみました。
+
+![VM Tracker - Large Block](http://keijiro.github.io/ios-resident-memory-test/VMTrackerLargeBlock.png)
+
+このグラフでは、Dirty Size （割り当てられた物理メモリのうち、実際に使用されている領域の総量）と Resident Size がほぼ連動して動いています。両方とも解放後に値が減少しています（元の値にまでは戻りませんが、それはここでは無視してください<sup>2</sup>）。
+
+次に、小さなメモリブロックの場合を観察してみました。
+
+![VM Tracker - Small Block](http://keijiro.github.io/ios-resident-memory-test/VMTrackerSmallBlock.png)
+
+Activity Monitor で確認したときのように、Resident Size が元に戻らない現象が発生しています。ただし、Dirty Size の方は 1MB 程度にまで戻っていることが分かります。つまりこれは「メモリは正しく解放されているが、Malloc がリソースの返却を保留している」という状態を示しています。
+
+Malloc の tiny zone や small zone が使用している領域に注目してみましょう。
+
+![VM Tracker - Small Block (2)](http://keijiro.github.io/ios-resident-memory-test/VMTrackerSmallBlock2.png)
+
+これらの領域はメモリ確保に伴い Resident Size と Dirty Size が増えていきますが、解放の際は Dirty Size だけが減少しています。他のアプリを起動して適度にメモリプレッシャーを与えると、適切なサイズにまで縮小されました。
+
+- 2. 使用メモリ領域の拡大に伴い、Instruments が使用するメモリ領域も拡大していきます。この領域は一旦拡大すると縮小することがないため、どうしても元通りにはなりません。
