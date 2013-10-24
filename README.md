@@ -1,12 +1,16 @@
 # iOS における malloc の挙動について
 
+この文書は、iOS において malloc / free を使用した場合の、メモリ消費のあり方について考察するものです。いわば、古き良き libc 経由でのメモリ管理のアプローチについて触れるものであり、Cocoa 経由でのメモリ管理についてはまた異なったアプローチがあるので注意してください。
+
+## メモリ消費量の不可解な変動
+
 iOS アプリ開発の現場においては、度々、メモリ消費量のことが話題にあげられます。しかし、アプリの「メモリ消費量」を正確に測定することは簡単ではありません。何をもって「メモリ消費量」とするか、その定義が明らかでないためです。
 
 「メモリ消費量」を表す数値としてよく参考に挙げられるのが、Activity Monitor で取得できる "Real Memory Usage" の値や、[task_basic_info.resident_size](http://stackoverflow.com/questions/787160/programmatically-retrieve-memory-usage-on-iphone) の値です。
 
 ![Real Memory Usage](http://keijiro.github.io/ios-resident-memory-test/RealMemoryUsage.png)
 
-ただ、これらの値は若干不可解な動きをすることがあります。malloc でメモリを確保すると、これらの値が上がっていくのはもちろんのことですが、free によってメモリを返却しても、これらの値が下がらないことがあるためです。
+ただ、これらの値は若干不可解な動きをすることがあります。malloc でメモリを確保すると、これらの値が上がっていくのはもちろんのことですが、free によってメモリを返却しても、これらの値が下がらないことがあるのです。
 
 ## テストプログラム
 
@@ -48,7 +52,7 @@ iOS アプリ開発の現場においては、度々、メモリ消費量のこ�
 
 ![Small Block Allocation](http://keijiro.github.io/ios-resident-memory-test/SmallBlockAllocation.png)
 
-この後、ホームボタンを押してアプリを中断し、Facebook, Twitter, Safari, Gmail 等、適度にメモリを消費するアプリを立ち上げていったところ、resident memory は 11MB まで減りました。
+この後、ホームボタンを押してアプリを中断し、Facebook, Twitter, Safari, Gmail 等、適度にメモリを消費するアプリを立ち上げていったところ、Real Mem は 11MB まで減りました。
 
 ![Small Block Allocation (2)](http://keijiro.github.io/ios-resident-memory-test/SmallBlockAllocation2.png)
 
@@ -58,7 +62,7 @@ iOS は malloc 経由で確保されるメモリを **tiny**, **small**, **large
 
 これらの挙動の違いは、VM Tracker を使用することで、より詳しく観察できます。
 
- - 1. 過去の資料には "huge" という 4 つ目の zone が存在すると記されている場合もありますが、これは [magazine allocator](http://www.opensource.apple.com/source/Libc/Libc-825.40.1/gen/magazine_malloc.c) への移行の際に廃止されています。恐らく現状の iOS でも使用されていないでしょう。
+> <sup>1</sup> 過去の資料には "huge" という 4 つ目の zone が存在すると記されている場合もありますが、これは [magazine allocator](http://www.opensource.apple.com/source/Libc/Libc-825.40.1/gen/magazine_malloc.c) への移行の際に廃止されています。恐らく現状の iOS でも使用されていないでしょう。
 
 ## VM Tracker で詳しく観察する
 
@@ -76,12 +80,49 @@ Instruments の Activity Monitor テンプレートはシステムの状態を�
 
 ![VM Tracker - Small Block](http://keijiro.github.io/ios-resident-memory-test/VMTrackerSmallBlock.png)
 
-Activity Monitor で確認したときのように、Resident Size が元に戻らない現象が発生しています。ただし、Dirty Size の方は 1MB 程度にまで戻っていることが分かります。つまりこれは「メモリは正しく解放されているが、Malloc がリソースの返却を保留している」という状態を示しています。
+Activity Monitor で確認したときのように、Resident Size が元に戻らない現象が発生しています。ただし、Dirty Size の方は適切に減少していることが分かります。つまりこれは「メモリは正しく解放されているが、Malloc がリソースの返却を保留している」という状態を示しています。
 
-Malloc の tiny zone や small zone が使用している領域に注目してみましょう。
+VM Tracker の詳細ビューを使って、tiny zone や small zone が確保している領域に注目してみましょう。
 
 ![VM Tracker - Small Block (2)](http://keijiro.github.io/ios-resident-memory-test/VMTrackerSmallBlock2.png)
 
 これらの領域はメモリ確保に伴い Resident Size と Dirty Size が増えていきますが、解放の際は Dirty Size だけが減少しています。他のアプリを起動して適度にメモリプレッシャーを与えると、適切なサイズにまで縮小されました。
 
-- 2. 使用メモリ領域の拡大に伴い、Instruments が使用するメモリ領域も拡大していきます。この領域は一旦拡大すると縮小することがないため、どうしても元通りにはなりません。
+> <sup>2</sup> 使用メモリ領域の拡大に伴い、Instruments が使用するメモリ領域も拡大していきます。この領域は一旦拡大すると縮小することがないため、どうしても元通りにはなりません。
+
+## まとめ
+
+iOS アプリにおけるメモリ消費量を観察する目的で Resident Size を用いることがありますが、これは malloc が返却を保留している分も含めて計上されるため、アプリの挙動をつかむには、それほど適した方法ではないかもしれません。
+
+他方で、Resident Size はメモリ不足時にプロセスを破棄する判断基準として用いられるため<sup>3</sup>、この値がある種の重要性を持つことも確かではあります。
+
+以上の考察をまとめると、次のように考えるのが良いのかもしれません。
+
+- Resident Size はアプリのメモリ消費のピーク量を把握するには適した指標である。
+- アプリがメモリ管理を適切に行っているか（不要なメモリを解放しているかどうか）を把握するために Resident Size を観察するのは適切でない。
+- ある瞬間におけるメモリ消費の実態を把握するには Allocations と VM Tracker の併用が欠かせない。
+
+> <sup>3</sup> 実際の iOS の仕様を知ることはできませんが、参考資料に挙げる XNU のソースコードでは task_basic_info.resident_size を使用していることが分かります。
+
+## 参考資料
+
+- [Memory Usage Performance Guidelines](https://developer.apple.com/library/IOs/documentation/Performance/Conceptual/ManagingMemory/ManagingMemory.html)
+
+Apple の公式なガイドラインです。
+
+- [A look at how malloc works on the Mac](http://www.cocoawithlove.com/2010/05/look-at-how-malloc-works-on-mac.html)
+
+Mac OS X における malloc の挙動を解説しています。そのほとんどの記述は iOS でも参考になります。
+
+- [magazine_malloc.c](http://www.opensource.apple.com/source/Libc/Libc-825.40.1/gen/magazine_malloc.c)
+
+Mac OS X で使用されている Libc 内のメモリアロケーターの実装です。現状の iOS でもこれに近いものが使用されていると推測されます。
+
+- [kern_memorystatus.c](http://www.opensource.apple.com/source/xnu/xnu-2050.48.11/bsd/kern/kern_memorystatus.c)
+
+Mac OS X のカーネル (XNU) に含まれるメモリ消費量分析のソースコードです。メモリ不足時にプロセスを停止させるための機構 (Jetsam) が実装されています。iOS で用いられている同様の仕組みは、このコードに近いものであると推測されます。
+
+- [Mac OS X and iOS Internals: To the Apple's Core](http://www.newosxbook.com/)
+
+Mac OS X と iOS のカーネル実装について解説した書籍です。
+
