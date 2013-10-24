@@ -102,7 +102,7 @@ iOS アプリにおけるメモリ消費量を観察する目的で Resident Siz
 - アプリ内でもリアルタイムなメモリ使用量を把握する目的で Resident Size を観察するのは適切でない。
 - ある瞬間におけるメモリ消費の実態を把握するには Allocations と VM Tracker の併用が欠かせない。
 
-> <sup>3</sup> 実際の iOS の仕様を知ることはできませんが、参考資料に挙げる XNU のソースコードでは task_basic_info.resident_size を使用していることが分かります。
+> <sup>3</sup> 実際の iOS の仕様を知ることはできませんが、参考資料に挙げる XNU のソースコードでは task_basic_info.resident_size が多くの箇所で用いられていることから、この値が意味を持つことが推測されます。
 
 ## 参考資料
 
