@@ -124,4 +124,4 @@ Mac OS X のカーネル (XNU) に含まれるメモリ消費量分析のソー�
 
 - [Mac OS X and iOS Internals: To the Apple's Core](http://www.newosxbook.com/)
 
-Mac OS X と iOS のカーネル実装について解説した書籍です。
+Mac OS X と iOS のカーネル実装について解説した書籍です。おすすめ。
