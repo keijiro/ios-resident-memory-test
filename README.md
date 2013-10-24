@@ -4,7 +4,7 @@ iOS アプリ開発の現場においては、度々、メモリ消費量のこ�
 
 「メモリ消費量」を表す数値としてよく参考に挙げられるのが、Activity Monitor で取得できる "Real Memory Usage" の値や、[task_basic_info.resident_size](http://stackoverflow.com/questions/787160/programmatically-retrieve-memory-usage-on-iphone) の値です。
 
-![Real Memory Usage]()
+![Real Memory Usage](http://keijiro.github.io/ios-resident-memory-test/RealMemoryUsage.png)
 
 ただ、これらの値は若干不可解な動きをすることがあります。malloc でメモリを確保すると、これらの値が上がっていくのはもちろんのことですが、free によってメモリを返却しても、これらの値が下がらないことがあるためです。
 
@@ -12,7 +12,7 @@ iOS アプリ開発の現場においては、度々、メモリ消費量のこ�
 
 この挙動を詳しく観察するために、簡単なテストプログラムを作成しました。
 
-![Test Program]()
+![Test Program](http://keijiro.github.io/ios-resident-memory-test/TestProgram.png)
 
 このテストプログラムには３つのボタンがあります。
 
