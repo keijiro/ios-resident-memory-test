@@ -86,20 +86,20 @@ VM Tracker の詳細ビューを使って、tiny zone や small zone が確保�
 
 ![VM Tracker - Small Block (2)](http://keijiro.github.io/ios-resident-memory-test/VMTrackerSmallBlock2.png)
 
-これらの領域はメモリ確保に伴い Resident Size と Dirty Size が増えていきますが、解放の際は Dirty Size だけが減少しています。他のアプリを起動して適度にメモリプレッシャーを与えると、適切なサイズにまで縮小されました。
+これらの領域はメモリ確保に伴い Resident Size と Dirty Size が増えていきますが、解放の際は Dirty Size だけが減少しています。他のアプリを起動して適度にメモリプレッシャーを与えると、Resident Size も適切なサイズにまで縮小されました。
 
 > <sup>2</sup> 使用メモリ領域の拡大に伴い、Instruments が使用するメモリ領域も拡大していきます。この領域は一旦拡大すると縮小することがないため、どうしても元通りにはなりません。
 
 ## まとめ
 
-iOS アプリにおけるメモリ消費量を観察する目的で Resident Size を用いることがありますが、これは malloc が返却を保留している分も含めて計上されるため、アプリの挙動をつかむには、それほど適した方法ではないかもしれません。
+iOS アプリにおけるメモリ消費量を観察する目的で Resident Size を用いることがありますが、この値には malloc が返却を保留している分も含めて計上されます。そのため、リアルタイムな観察を行うには適していません。
 
-他方で、Resident Size はメモリ不足時にプロセスを破棄する判断基準として用いられるため<sup>3</sup>、この値がある種の重要性を持つことも確かではあります。
+他方で、Resident Size はメモリ不足時にプロセスを破棄する判断基準として用いられるため<sup>3</sup>、この値がある種の重要性を持つことは確かです。
 
 以上の考察をまとめると、次のように考えるのが良いのかもしれません。
 
-- Resident Size はアプリのメモリ消費のピーク量を把握するには適した指標である。
-- アプリがメモリ管理を適切に行っているか（不要なメモリを解放しているかどうか）を把握するために Resident Size を観察するのは適切でない。
+- Resident Size はアプリのメモリ消費の**ピーク量**を把握するには適切な指標である。
+- アプリ内でもリアルタイムなメモリ使用量を把握する目的で Resident Size を観察するのは適切でない。
 - ある瞬間におけるメモリ消費の実態を把握するには Allocations と VM Tracker の併用が欠かせない。
 
 > <sup>3</sup> 実際の iOS の仕様を知ることはできませんが、参考資料に挙げる XNU のソースコードでは task_basic_info.resident_size を使用していることが分かります。
@@ -125,4 +125,3 @@ Mac OS X のカーネル (XNU) に含まれるメモリ消費量分析のソー�
 - [Mac OS X and iOS Internals: To the Apple's Core](http://www.newosxbook.com/)
 
 Mac OS X と iOS のカーネル実装について解説した書籍です。
-
