@@ -33,3 +33,29 @@ iOS アプリ開発の現場においては、度々、メモリ消費量のこ�
     }
 
 これらのボタンを押したときに生じる挙動を観察してみます。
+
+### 大きなメモリブロックの場合
+
+初期状態では 7MB 程度であったのが、ボタンを押すと 23MB にまで増えました。解放ボタンを押すと 11MB にまで減りました。
+
+![Large Block Allocation](http://keijiro.github.io/ios-resident-memory-test/LargeBlockAllocation.png)
+
+完全に元には戻らないのが若干不思議ですが、分かりやすい結果と言えます。
+
+### 小さなメモリブロックの場合
+
+初期状態では 7MB 程度であったのが、ボタンを押すと 26MB にまで増えました。解放ボタンを押しても値は減少しません。
+
+![Small Block Allocation](http://keijiro.github.io/ios-resident-memory-test/SmallBlockAllocation.png)
+
+この後、ホームボタンを押してアプリを中断し、Facebook, Twitter, Safari, Gmail 等、適度にメモリを消費するアプリを立ち上げていったところ、resident memory は 11MB まで減りました。
+
+![Small Block Allocation (2)](http://keijiro.github.io/ios-resident-memory-test/SmallBlockAllocation2.png)
+
+## なぜ違いが出るのか
+
+iOS は malloc 経由で確保されるメモリを **tiny**, **small**, **large** の３つ<sup>1</sup>の **zone** に分類して管理します。このうち large zone は、領域が解放されると即座に物理メモリをシステムに返却します。他の２つは、メモリプレッシャーが生じるまで解放しない傾向にあります。そのため、上のような挙動の違いが生じます。
+
+これらの挙動の違いは、VM Tracker を使用することで、より詳しく観察できます。
+
+ - 1. 過去の資料には "huge" という 4 つ目の zone が存在すると記されている場合もありますが、これは [magazine allocator](http://www.opensource.apple.com/source/Libc/Libc-825.40.1/gen/magazine_malloc.c) への移行の際に廃止されています。恐らく現状の iOS でも使用されていないでしょう。
